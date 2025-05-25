@@ -240,7 +240,55 @@ initQueries = [
           file_size int8 not null
         )|]),
   (10, "create index files_by_media_id on files(media_id)"),
-  (11, "alter table files add column section text not null")
+  (11, "alter table files add column section text not null"),
+  (12, [r|
+ALTER TABLE gps_readings ADD CONSTRAINT fk_gps_readings_mid
+  FOREIGN KEY (media_id) REFERENCES media (media_id) ON DELETE CASCADE;
+
+ALTER TABLE files ADD CONSTRAINT fk_files_mid
+  FOREIGN KEY (media_id) REFERENCES media (media_id) ON DELETE CASCADE;
+
+ALTER TABLE metablob ADD CONSTRAINT fk_metablob_mid
+  FOREIGN KEY (media_id) REFERENCES media (media_id) ON DELETE CASCADE;
+
+ALTER TABLE upload_parts ALTER CONSTRAINT fk_upload_parts
+  DEFERRABLE INITIALLY IMMEDIATE;
+
+ALTER TABLE meta DROP CONSTRAINT IF EXISTS fk_meta_mid;
+ALTER TABLE meta ADD CONSTRAINT fk_meta_mid
+  FOREIGN KEY (media_id) REFERENCES media (media_id) ON DELETE CASCADE;
+
+ALTER TABLE moments DROP CONSTRAINT IF EXISTS fk_moments_mid;
+ALTER TABLE moments ADD CONSTRAINT fk_moments_mid
+  FOREIGN KEY (media_id) REFERENCES media (media_id) ON DELETE CASCADE;
+
+ALTER TABLE s3backup DROP CONSTRAINT IF EXISTS fk_s3backup_mid;
+ALTER TABLE s3backup ADD CONSTRAINT fk_s3backup_mid
+  FOREIGN KEY (media_id) REFERENCES media (media_id) ON DELETE CASCADE;
+
+ALTER TABLE timestamp_corrections ADD CONSTRAINT fk_timestamp_corrections_mid
+  FOREIGN KEY (media_id) REFERENCES media (media_id) ON DELETE CASCADE;
+
+ALTER TABLE upload_parts DROP CONSTRAINT IF EXISTS fk_upload_parts;
+ALTER TABLE upload_parts ADD CONSTRAINT fk_upload_parts
+  FOREIGN KEY (media_id, partnum) REFERENCES uploads (media_id, partnum)
+  ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
+
+CREATE INDEX IF NOT EXISTS upload_parts_media_partnum_idx ON upload_parts(media_id, partnum);
+CREATE INDEX IF NOT EXISTS uploads_media_id_idx ON uploads(media_id);
+CREATE INDEX IF NOT EXISTS timestamp_corrections_media_id_idx ON timestamp_corrections(media_id);
+
+ALTER TABLE uploads ADD CONSTRAINT fk_uploads_mid
+  FOREIGN KEY (media_id) REFERENCES media (media_id) ON DELETE CASCADE;
+
+
+CREATE INDEX IF NOT EXISTS files_media_id_idx ON files(media_id);
+CREATE INDEX IF NOT EXISTS metablob_media_id_idx ON metablob(media_id);
+CREATE INDEX IF NOT EXISTS gps_readings_media_id_idx ON gps_readings(media_id);
+CREATE INDEX IF NOT EXISTS meta_media_id_idx ON meta(media_id);
+CREATE INDEX IF NOT EXISTS moments_media_id_idx ON moments(media_id);
+CREATE INDEX IF NOT EXISTS s3backup_media_id_idx ON s3backup(media_id);
+|])
   ]
 
 initTables :: Session ()
