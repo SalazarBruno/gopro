@@ -30,7 +30,7 @@ type Medium struct {
 }
 
 func fetchList(ctx context.Context, baseu string) ([]Medium, error) {
-	ctx, cancel := context.WithTimeout(ctx, time.Second*10)
+	ctx, cancel := context.WithTimeout(ctx, time.Second*60)
 	defer cancel()
 	req, err := http.NewRequestWithContext(ctx, "GET", baseu+mediaListURL, nil)
 	if err != nil {
