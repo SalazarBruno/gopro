@@ -288,7 +288,12 @@ CREATE INDEX IF NOT EXISTS gps_readings_media_id_idx ON gps_readings(media_id);
 CREATE INDEX IF NOT EXISTS meta_media_id_idx ON meta(media_id);
 CREATE INDEX IF NOT EXISTS moments_media_id_idx ON moments(media_id);
 CREATE INDEX IF NOT EXISTS s3backup_media_id_idx ON s3backup(media_id);
-|])
+|]),
+
+  (13, [r|
+      alter table uploads drop constraint fk_uploads_mid;
+      alter table metablob drop constraint fk_metablob_mid;
+      |])
   ]
 
 initTables :: Session ()
@@ -799,4 +804,3 @@ loadFiles = maybe runAll runOne
         <*> column (nonNullable Decoders.text)
         <*> (fromIntegral <$> column (nonNullable Decoders.int4))
         <*> (fromIntegral <$> column (nonNullable Decoders.int8))
-
